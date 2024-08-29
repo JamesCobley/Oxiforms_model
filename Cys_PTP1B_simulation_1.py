@@ -25,9 +25,11 @@ proteoform_df['k_value'] = proteoform_df.iloc[:, 1:].sum(axis=1)  # Sum across a
 proteoform_library = proteoform_df.groupby('k_value').apply(lambda x: x.iloc[:, 1:-1].values.tolist()).to_dict()
 
 # Initialize the distribution of PTP1B molecules
-# 100% start at k = 0 (fully reduced)
 proteoform_distribution = {k: 0 for k in range(11)}
 proteoform_distribution[0] = number_of_PTP1B_molecules
+
+# Store unique proteoforms encountered during the simulation
+unique_proteoforms = set()
 
 # Monte Carlo simulation
 for step in range(time_steps):
@@ -57,6 +59,11 @@ for step in range(time_steps):
 
     proteoform_distribution = new_distribution
     
+    # Track unique proteoforms
+    for k, count in proteoform_distribution.items():
+        if count > 0:
+            unique_proteoforms.update(tuple(proteoform) for proteoform in proteoform_library[k])
+
     # Print the current distribution of PTP1B molecules across k values
     print(f"Time Step {step}: Proteoform Distribution = {proteoform_distribution}")
 
@@ -72,26 +79,31 @@ total_molecules = sum(proteoform_distribution.values())
 weighted_mean_redox_state = sum(k * count for k, count in proteoform_distribution.items()) / total_molecules / 10
 print(f"Overall weighted mean redox state: {weighted_mean_redox_state:.4f}")
 
+# Count the number of unique proteoforms
+num_unique_proteoforms = len(unique_proteoforms)
+print(f"Number of unique proteoforms present at the end of the simulation: {num_unique_proteoforms} out of 1024")
+
 # Generate the Excel file
 site_columns = proteoform_df.columns[1:-1]  # Extract the cysteine site columns
-output_df = pd.DataFrame(columns=['Proteoform_ID', 'k_value'] + list(site_columns))
+output_df = pd.DataFrame(columns=['Proteoform_ID', 'k_value'] + list(site_columns) + ['Molecule_Count'])
 
 # Populate the Excel file with the final distribution
 rows = []
-for k, count in proteoform_distribution.items():
-    if count > 0:
-        for proteoform in proteoform_library[k]:
-            proteoform_data = {
-                'Proteoform_ID': proteoform_df[(proteoform_df.iloc[:, 1:-1] == proteoform).all(axis=1)].index[0],
-                'k_value': k
-            }
-            proteoform_data.update({site: state for site, state in zip(site_columns, proteoform)})
-            rows.append(proteoform_data)
+for k in range(11):
+    for proteoform in proteoform_library[k]:
+        proteoform_tuple = tuple(proteoform)
+        proteoform_data = {
+            'Proteoform_ID': proteoform_df[(proteoform_df.iloc[:, 1:-1] == proteoform).all(axis=1)].index[0],
+            'k_value': k,
+            'Molecule_Count': proteoform_distribution[k]  # Add the molecule count for this proteoform
+        }
+        proteoform_data.update({site: state for site, state in zip(site_columns, proteoform_tuple)})
+        rows.append(proteoform_data)
 
 # Convert the list of rows to a DataFrame
 output_df = pd.DataFrame(rows)
 
 # Save the DataFrame to an Excel file
-output_df.to_excel('PTP1B_proteoform_distribution.xlsx', index=False)
+output_df.to_excel('PTP1B_proteoform_distribution_with_counts.xlsx', index=False)
 
-print("Proteoform distribution has been saved to 'PTP1B_proteoform_distribution.xlsx'")
+print("Proteoform distribution with molecule counts has been saved to 'PTP1B_proteoform_distribution_with_counts.xlsx'")
