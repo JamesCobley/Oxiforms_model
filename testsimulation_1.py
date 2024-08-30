@@ -13,7 +13,7 @@ P_reduction_Cys215 = 0.9
 P_reduction_other = 0.1286
 
 # Load proteoform data
-proteoform_df = pd.read_csv('PTP1B_proteoforms_ordered.csv')  # Ensure this matches the filename in your repo
+proteoform_df = pd.read_csv('PTP1B_proteoforms_ordered.csv')
 proteoform_df['k_value'] = proteoform_df.iloc[:, 1:].sum(axis=1)
 
 # Group proteoforms by k value
@@ -25,7 +25,7 @@ proteoform_distribution[0][0] = number_of_PTP1B_molecules  # All molecules start
 
 # Monte Carlo simulation with chunking
 for step in range(time_steps):
-    new_distribution = {k: [0] * len(proteoform_library[k]) for k in range(11)]
+    new_distribution = {k: [0] * len(proteoform_library[k]) for k in range(11)}
 
     for k, proteoforms in proteoform_distribution.items():
         for i, count in enumerate(proteoforms):
@@ -76,7 +76,7 @@ for k, proteoforms in proteoform_distribution.items():
                 'Molecule_Count': count
             }
             proteoform_data.update({site: state for site, state in zip(proteoform_df.columns[1:-1], proteoform_library[k][i])})
-            output_df = output_df.append(proteoform_data, ignore_index=True)
+            output_df = pd.concat([output_df, pd.DataFrame([proteoform_data])], ignore_index=True)
 
 output_df.to_excel('PTP1B_proteoform_final_distribution_with_counts.xlsx', index=False)
 print("Final proteoform distribution with molecule counts has been saved to 'PTP1B_proteoform_final_distribution_with_counts.xlsx'")
