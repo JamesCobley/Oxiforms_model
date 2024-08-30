@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 
 # Constants
-number_of_PTP1B_molecules = 6022141500000000  # Total number of PTP1B molecules
-time_steps = 173  # Number of simulation steps
+number_of_PTP1B_molecules = 10**9  # 1 billion molecules
+time_steps = 60  # 60 steps
 chunk_size = 10**6  # Process molecules in chunks to handle large numbers
 
 # Transition probabilities
