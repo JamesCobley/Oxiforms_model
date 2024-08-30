@@ -13,7 +13,7 @@ P_reduction_Cys215 = 0.9
 P_reduction_other = 0.1286
 
 # Load proteoform data
-proteoform_df = pd.read_csv('/content/PTP1B_proteoforms_ordered.csv')
+proteoform_df = pd.read_csv('PTP1B_proteoforms_ordered.csv')  # Ensure this matches the filename in your repo
 proteoform_df['k_value'] = proteoform_df.iloc[:, 1:].sum(axis=1)
 
 # Group proteoforms by k value
@@ -25,7 +25,7 @@ proteoform_distribution[0][0] = number_of_PTP1B_molecules  # All molecules start
 
 # Monte Carlo simulation with chunking
 for step in range(time_steps):
-    new_distribution = {k: [0] * len(proteoform_library[k]) for k in range(11)}
+    new_distribution = {k: [0] * len(proteoform_library[k]) for k in range(11)]
 
     for k, proteoforms in proteoform_distribution.items():
         for i, count in enumerate(proteoforms):
