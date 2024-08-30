@@ -40,7 +40,7 @@ for step in range(time_steps):
                         oxidation_prob = P_oxidation_Cys215 if k == 0 else P_oxidation_other
                         oxidized = np.random.binomial(chunk_count, oxidation_prob)
                         for j, next_proteoform in enumerate(proteoform_library[k + 1]):
-                            if np.sum(np.array(next_proteoform) - np.array(proteoform_library[k][i])) == 1:
+                            if sum(np.array(next_proteoform) - np.array(proteoform_library[k][i])) == 1:
                                 new_distribution[k + 1][j] += oxidized
                                 break
                         new_distribution[k][i] += chunk_count - oxidized
@@ -50,7 +50,7 @@ for step in range(time_steps):
                         reduction_prob = P_reduction_Cys215 if k == 1 else P_reduction_other
                         reduced = np.random.binomial(chunk_count, reduction_prob)
                         for j, prev_proteoform in enumerate(proteoform_library[k - 1]):
-                            if np.sum(np.array(proteoform_library[k][i]) - np.array(prev_proteoform)) == 1:
+                            if sum(np.array(proteoform_library[k][i]) - np.array(prev_proteoform)) == 1:
                                 new_distribution[k - 1][j] += reduced
                                 break
                         new_distribution[k][i] += chunk_count - reduced
@@ -71,7 +71,7 @@ for k, proteoforms in proteoform_distribution.items():
     for i, count in enumerate(proteoforms):
         if count > 0:
             proteoform_data = {
-                'Proteoform_ID': proteoform_df[(proteoform_df.iloc[:, 1:-1] == proteoform_library[k][i]).all(axis=1)].index[0],
+                'Proteoform_ID': proteoform_df[(proteoform_df.iloc[:, 1:-1].values.tolist() == proteoform_library[k][i]).all(axis=1)].index[0],
                 'k_value': k,
                 'Molecule_Count': count
             }
