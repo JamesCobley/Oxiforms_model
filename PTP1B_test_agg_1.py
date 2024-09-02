@@ -25,6 +25,12 @@ proteoform_library = proteoform_df.groupby('k_value').apply(lambda x: x.iloc[:, 
 proteoform_distribution = {k: [0] * len(proteoform_library[k]) for k in range(11)}
 proteoform_distribution[0][0] = number_of_PTP1B_molecules  # All molecules start in k=0
 
+# Function to check total molecules
+def check_total_molecules(distribution, step):
+    total_molecules = sum(sum(proteoforms) for proteoforms in distribution.values())
+    print(f"Total molecules after step {step}: {total_molecules}")
+    return total_molecules
+
 # Monte Carlo simulation with chunking
 for step in range(time_steps):
     new_distribution = {k: [0] * len(proteoform_library[k]) for k in range(11)}
@@ -62,9 +68,7 @@ for step in range(time_steps):
                         new_distribution[k][i] += chunk_count - reduced
 
     proteoform_distribution = new_distribution
-
-    # Add a progress indicator here
-    print(f"Step {step + 1}/{time_steps} completed.")
+    total_molecules = check_total_molecules(proteoform_distribution, step + 1)
 
 # Final check
 total_molecules_final = sum(sum(proteoforms) for proteoforms in proteoform_distribution.values())
