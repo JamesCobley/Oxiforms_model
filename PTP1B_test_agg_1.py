@@ -51,7 +51,7 @@ for step in range(time_steps):
                         oxidation_prob = P_oxidation_Cys215 if k == 0 else P_oxidation_other
                         oxidized = np.random.binomial(chunk_count, oxidation_prob)
 
-                        # Subtract the oxidized molecules from the current state
+                        # Ensure oxidized molecules are correctly moved and subtracted
                         remaining_chunk = chunk_count - oxidized
                         new_distribution[k][i] += remaining_chunk  # Remaining unoxidized molecules
 
@@ -65,8 +65,9 @@ for step in range(time_steps):
                         reduction_prob = P_reduction_Cys215 if k == 1 else P_reduction_other
                         reduced = np.random.binomial(remaining_chunk, reduction_prob)
 
-                        # Subtract the reduced molecules from the current state
-                        new_distribution[k][i] += remaining_chunk - reduced
+                        # Ensure reduced molecules are correctly moved and subtracted
+                        final_chunk = remaining_chunk - reduced
+                        new_distribution[k][i] += final_chunk  # Remaining unreduced molecules
 
                         for j, prev_proteoform in enumerate(proteoform_library[k - 1]):
                             if sum(np.array(proteoform_library[k][i]) - np.array(prev_proteoform)) == 1:
