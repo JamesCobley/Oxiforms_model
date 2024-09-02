@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import os
+import requests
+import base64
 
 # Constants
 number_of_PTP1B_molecules = 10**9  # 1 billion molecules
@@ -85,5 +88,35 @@ for k, proteoforms in proteoform_distribution.items():
             proteoform_data.update({site: state for site, state in zip(proteoform_df.columns[1:-1], proteoform_library[k][i])})
             output_df = pd.concat([output_df, pd.DataFrame([proteoform_data])], ignore_index=True)
 
-output_df.to_excel('PTP1B_proteoform_final_distribution_with_counts.xlsx', index=False)
-print("Final proteoform distribution with molecule counts has been saved to 'PTP1B_proteoform_final_distribution_with_counts.xlsx'")
+# Save to a local file first
+local_file_path = 'PTP1B_proteoform_final_distribution_with_counts.xlsx'
+output_df.to_excel(local_file_path, index=False)
+
+# Upload to GitHub
+def upload_to_github(repo, path, token, message="Upload simulation result"):
+    with open(local_file_path, 'rb') as f:
+        content = base64.b64encode(f.read()).decode('utf-8')
+
+    url = f"https://api.github.com/repos/{repo}/contents/{path}"
+    headers = {
+        "Authorization": f"token {token}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "message": message,
+        "content": content
+    }
+    response = requests.put(url, headers=headers, json=data)
+
+    if response.status_code == 201:
+        print(f"File successfully uploaded to GitHub at '{path}'")
+    else:
+        print(f"Failed to upload file to GitHub: {response.json()}")
+
+# Replace these with your details
+github_repo = "JamesCobley/Oxiforms_model"
+github_path = "PTP1B_proteoform_final_distribution_with_counts.xlsx"
+github_token = "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"  # Replace with the new token
+
+# Upload the file
+upload_to_github(github_repo, github_path, github_token)
