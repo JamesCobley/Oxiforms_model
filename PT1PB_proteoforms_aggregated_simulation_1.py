@@ -6,7 +6,7 @@ import base64
 
 # Constants
 number_of_PTP1B_molecules = 10**9  # 1 billion molecules
-time_steps = 60  # 60 steps
+time_steps = 10  # 10 steps
 chunk_size = 10**6  # Process molecules in chunks to handle large numbers
 
 # Transition probabilities
