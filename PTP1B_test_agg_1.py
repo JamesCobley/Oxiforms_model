@@ -33,7 +33,10 @@ def check_total_molecules(distribution, step):
 
 # Monte Carlo simulation with chunking
 for step in range(time_steps):
+    print(f"--- Step {step + 1} ---")
     new_distribution = {k: [0] * len(proteoform_library[k]) for k in range(11)}
+
+    initial_molecule_count = check_total_molecules(proteoform_distribution, f"before step {step + 1}")
 
     for k, proteoforms in proteoform_distribution.items():
         for i, count in enumerate(proteoforms):
@@ -48,29 +51,30 @@ for step in range(time_steps):
                         oxidation_prob = P_oxidation_Cys215 if k == 0 else P_oxidation_other
                         oxidized = np.random.binomial(chunk_count, oxidation_prob)
 
-                        # Ensure oxidized molecules are correctly moved and subtracted
-                        chunk_count -= oxidized
+                        # Subtract the oxidized molecules from the current state
+                        remaining_chunk = chunk_count - oxidized
+                        new_distribution[k][i] += remaining_chunk  # Remaining unoxidized molecules
+
                         for j, next_proteoform in enumerate(proteoform_library[k + 1]):
                             if sum(np.array(next_proteoform) - np.array(proteoform_library[k][i])) == 1:
                                 new_distribution[k + 1][j] += oxidized
                                 break
-                        new_distribution[k][i] += chunk_count  # Remaining unoxidized molecules
 
                     # Reduction: Move from k to k-1
                     if k > 0:
                         reduction_prob = P_reduction_Cys215 if k == 1 else P_reduction_other
-                        reduced = np.random.binomial(chunk_count, reduction_prob)
+                        reduced = np.random.binomial(remaining_chunk, reduction_prob)
 
-                        # Ensure reduced molecules are correctly moved and subtracted
-                        chunk_count -= reduced
+                        # Subtract the reduced molecules from the current state
+                        new_distribution[k][i] += remaining_chunk - reduced
+
                         for j, prev_proteoform in enumerate(proteoform_library[k - 1]):
                             if sum(np.array(proteoform_library[k][i]) - np.array(prev_proteoform)) == 1:
                                 new_distribution[k - 1][j] += reduced
                                 break
-                        new_distribution[k][i] += chunk_count  # Remaining unreduced molecules
 
     proteoform_distribution = new_distribution
-    total_molecules = check_total_molecules(proteoform_distribution, step + 1)
+    total_molecules = check_total_molecules(proteoform_distribution, f"after step {step + 1}")
 
 # Final check
 total_molecules_final = sum(sum(proteoforms) for proteoforms in proteoform_distribution.values())
