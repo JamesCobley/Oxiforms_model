@@ -92,7 +92,13 @@ for k, proteoforms in proteoform_distribution.items():
 local_file_path = 'PTP1B_proteoform_final_distribution_with_counts.xlsx'
 output_df.to_excel(local_file_path, index=False)
 
-# Upload to GitHub
+# Fetch the GitHub token from environment variables
+github_token = os.getenv('GITHUB_TOKEN')
+
+if github_token is None:
+    raise ValueError("GitHub token not found. Please set the GITHUB_TOKEN environment variable.")
+
+# Function to upload to GitHub
 def upload_to_github(repo, path, token, message="Upload simulation result"):
     with open(local_file_path, 'rb') as f:
         content = base64.b64encode(f.read()).decode('utf-8')
@@ -116,7 +122,6 @@ def upload_to_github(repo, path, token, message="Upload simulation result"):
 # Replace these with your details
 github_repo = "JamesCobley/Oxiforms_model"
 github_path = "PTP1B_proteoform_final_distribution_with_counts.xlsx"
-github_token = "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"  # Replace with the new token
 
-# Upload the file
+# Upload the file using the token from the environment
 upload_to_github(github_repo, github_path, github_token)
