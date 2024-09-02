@@ -48,24 +48,30 @@ for step in range(time_steps):
                         oxidation_prob = P_oxidation_Cys215 if k == 0 else P_oxidation_other
                         oxidized = np.random.binomial(chunk_count, oxidation_prob)
 
+                        # Subtract the oxidized molecules from the current state
+                        chunk_count -= oxidized
+
                         # Determine which proteoform to transition to
                         for j, next_proteoform in enumerate(proteoform_library[k + 1]):
                             if sum(np.array(next_proteoform) - np.array(proteoform_library[k][i])) == 1:
                                 new_distribution[k + 1][j] += oxidized
                                 break
-                        new_distribution[k][i] += chunk_count - oxidized
+                        new_distribution[k][i] += chunk_count  # Remaining unoxidized molecules
 
                     # Reduction: Move from k to k-1
                     if k > 0:
                         reduction_prob = P_reduction_Cys215 if k == 1 else P_reduction_other
                         reduced = np.random.binomial(chunk_count, reduction_prob)
 
+                        # Subtract the reduced molecules from the current state
+                        chunk_count -= reduced
+
                         # Determine which proteoform to transition to
                         for j, prev_proteoform in enumerate(proteoform_library[k - 1]):
                             if sum(np.array(proteoform_library[k][i]) - np.array(prev_proteoform)) == 1:
                                 new_distribution[k - 1][j] += reduced
                                 break
-                        new_distribution[k][i] += chunk_count - reduced
+                        new_distribution[k][i] += chunk_count  # Remaining unreduced molecules
 
     proteoform_distribution = new_distribution
     total_molecules = check_total_molecules(proteoform_distribution, step + 1)
