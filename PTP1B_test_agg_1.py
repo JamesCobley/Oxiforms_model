@@ -5,7 +5,7 @@ from google.cloud import storage
 
 # Constants
 number_of_PTP1B_molecules = 10**9  # 1 billion molecules
-time_steps = 10  # 10 steps
+time_steps = 60  # 60 steps
 chunk_size = 10**6  # Process molecules in chunks to handle large numbers
 
 # Transition probabilities
@@ -79,8 +79,10 @@ output_df = pd.DataFrame(columns=['Proteoform_ID', 'k_value'] + list(proteoform_
 for k, proteoforms in proteoform_distribution.items():
     for i, count in enumerate(proteoforms):
         if count > 0:
+            matching_rows = proteoform_df.iloc[:, 1:-1].eq(proteoform_library[k][i]).all(axis=1)
+            proteoform_id = proteoform_df[matching_rows].index[0]
             proteoform_data = {
-                'Proteoform_ID': proteoform_df[(proteoform_df.iloc[:, 1:-1].values.tolist() == proteoform_library[k][i]).all(axis=1)].index[0],
+                'Proteoform_ID': proteoform_id,
                 'k_value': k,
                 'Molecule_Count': count
             }
@@ -103,7 +105,7 @@ def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
     print(f"File {source_file_name} uploaded to {destination_blob_name} in bucket {bucket_name}.")
 
 # Use your actual bucket name
-gcs_bucket_name = "gcs_bucket_jamesmontecarlo"
+gcs_bucket_name = "jamesmontecarlo"
 gcs_destination_blob_name = "PTP1B_proteoform_final_distribution_with_counts.xlsx"
 
 # Upload the file to GCS
