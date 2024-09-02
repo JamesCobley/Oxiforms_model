@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
 import os
-import requests
-import base64
+from google.cloud import storage
 
 # Constants
 number_of_PTP1B_molecules = 10**9  # 1 billion molecules
-time_steps = 10  # 10 steps
+time_steps = 60  # 60 steps
 chunk_size = 10**6  # Process molecules in chunks to handle large numbers
 
 # Transition probabilities
@@ -91,37 +90,21 @@ for k, proteoforms in proteoform_distribution.items():
 # Save to a local file first
 local_file_path = 'PTP1B_proteoform_final_distribution_with_counts.xlsx'
 output_df.to_excel(local_file_path, index=False)
+print(f"File saved locally at {local_file_path}.")
 
-# Fetch the GitHub token from environment variables
-github_token = os.getenv('GITHUB_TOKEN')
+# Function to upload to Google Cloud Storage
+def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
+    """Uploads a file to Google Cloud Storage."""
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+    blob.upload_from_filename(source_file_name)
 
-if github_token is None:
-    raise ValueError("GitHub token not found. Please set the GITHUB_TOKEN environment variable.")
+    print(f"File {source_file_name} uploaded to {destination_blob_name} in bucket {bucket_name}.")
 
-# Function to upload to GitHub
-def upload_to_github(repo, path, token, message="Upload simulation result"):
-    with open(local_file_path, 'rb') as f:
-        content = base64.b64encode(f.read()).decode('utf-8')
+# Use your actual bucket name
+gcs_bucket_name = "gcs_bucket_jamesmontecarlo"
+gcs_destination_blob_name = "PTP1B_proteoform_final_distribution_with_counts.xlsx"
 
-    url = f"https://api.github.com/repos/{repo}/contents/{path}"
-    headers = {
-        "Authorization": f"token {token}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "message": message,
-        "content": content
-    }
-    response = requests.put(url, headers=headers, json=data)
-
-    if response.status_code == 201:
-        print(f"File successfully uploaded to GitHub at '{path}'")
-    else:
-        print(f"Failed to upload file to GitHub: {response.json()}")
-
-# Replace these with your details
-github_repo = "JamesCobley/Oxiforms_model"
-github_path = "PTP1B_proteoform_final_distribution_with_counts.xlsx"
-
-# Upload the file using the token from the environment
-upload_to_github(github_repo, github_path, github_token)
+# Upload the file to GCS
+upload_to_gcs(gcs_bucket_name, local_file_path, gcs_destination_blob_name)
