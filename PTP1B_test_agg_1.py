@@ -5,7 +5,7 @@ from google.cloud import storage
 
 # Constants
 number_of_PTP1B_molecules = 10**9  # 1 billion molecules
-time_steps = 10  # 60 steps
+time_steps = 10  # 10 steps
 chunk_size = 10**6  # Process molecules in chunks to handle large numbers
 
 # Transition probabilities
@@ -48,10 +48,8 @@ for step in range(time_steps):
                         oxidation_prob = P_oxidation_Cys215 if k == 0 else P_oxidation_other
                         oxidized = np.random.binomial(chunk_count, oxidation_prob)
 
-                        # Subtract the oxidized molecules from the current state
+                        # Ensure oxidized molecules are correctly moved and subtracted
                         chunk_count -= oxidized
-
-                        # Determine which proteoform to transition to
                         for j, next_proteoform in enumerate(proteoform_library[k + 1]):
                             if sum(np.array(next_proteoform) - np.array(proteoform_library[k][i])) == 1:
                                 new_distribution[k + 1][j] += oxidized
@@ -63,10 +61,8 @@ for step in range(time_steps):
                         reduction_prob = P_reduction_Cys215 if k == 1 else P_reduction_other
                         reduced = np.random.binomial(chunk_count, reduction_prob)
 
-                        # Subtract the reduced molecules from the current state
+                        # Ensure reduced molecules are correctly moved and subtracted
                         chunk_count -= reduced
-
-                        # Determine which proteoform to transition to
                         for j, prev_proteoform in enumerate(proteoform_library[k - 1]):
                             if sum(np.array(proteoform_library[k][i]) - np.array(prev_proteoform)) == 1:
                                 new_distribution[k - 1][j] += reduced
