@@ -6,12 +6,14 @@ from io import StringIO
 
 # Google Cloud Storage setup
 bucket_name = "jamesmontecarlo"
+file_name = "PTP1B_proteoforms_ordered.csv"
 storage_client = storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
-# Load the proteoform library CSV file from GitHub
-github_csv_url = 'https://github.com/JamesCobley/Oxiforms_model/blob/main/PTP1B_proteoforms_ordered.csv'
-proteoform_df = pd.read_csv(github_csv_url)
+# Load the proteoform library CSV file from Google Cloud Storage
+blob = bucket.blob(file_name)
+csv_data = blob.download_as_text()
+proteoform_df = pd.read_csv(StringIO(csv_data))
 proteoform_df['k_value'] = proteoform_df.iloc[:, 1:].sum(axis=1)
 
 # Simulated parameters
