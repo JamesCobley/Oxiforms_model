@@ -10,13 +10,13 @@ storage_client = storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
 # Load the proteoform library CSV file from GitHub
-github_csv_url = 'https://raw.githubusercontent.com/yourusername/your-repo/main/PTP1B_proteoforms_ordered.csv'
+github_csv_url = 'https://github.com/JamesCobley/Oxiforms_model/blob/main/PTP1B_proteoforms_ordered.csv'
 proteoform_df = pd.read_csv(github_csv_url)
 proteoform_df['k_value'] = proteoform_df.iloc[:, 1:].sum(axis=1)
 
 # Simulated parameters
-number_of_molecules = 10000
-time_steps = 173
+number_of_molecules = 100
+time_steps = 10
 
 # Provided oxidation and reduction probabilities
 P_oxidation_Cys215 = 0.1
