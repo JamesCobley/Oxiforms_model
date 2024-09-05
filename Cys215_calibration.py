@@ -1,7 +1,7 @@
 import numpy as np
 
 # Define initial conditions
-num_molecules = 6022141500000000  # Total number of PTP1B molecules
+num_molecules = 70000  # Total number of PTP1B molecules
 oxidation_probability = 0.1
 reduction_probability = 0.9
 
@@ -31,7 +31,9 @@ for step in range(num_steps):
 total_molecules = molecules_in_k0 + molecules_in_k1
 percentage_in_k1 = (molecules_in_k1 / total_molecules) * 100
 
+# Print the final results
 print(f"\nFinal Distribution after {num_steps} steps:")
 print(f"Number of molecules in k = 0: {molecules_in_k0}")
 print(f"Number of molecules in k = 1: {molecules_in_k1}")
+print(f"Total number of molecules: {total_molecules}")
 print(f"Percentage of molecules in k = 1: {percentage_in_k1:.4f}%")
