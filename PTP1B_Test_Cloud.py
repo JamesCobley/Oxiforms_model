@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from google.cloud import storage
 import time
-from io import StringIO
+from io import StringIO, BytesIO  # Added BytesIO for Excel file handling
 
 # Google Cloud Storage setup
 bucket_name = "jamesmontecarlo"
@@ -129,8 +129,10 @@ final_counts_df = pd.DataFrame(list(final_proteoform_counts.items()), columns=['
 final_counts_df['k_value'] = final_counts_df['Proteoform_ID'].apply(lambda pid: sum(proteoform_df.loc[proteoform_df['Unnamed: 0'] == pid].iloc[0, 1:-1]))
 
 # Save the results to Excel and upload to Google Cloud Storage
-excel_buffer = StringIO()
+excel_buffer = BytesIO()  # Use BytesIO instead of StringIO
 final_counts_df.to_excel(excel_buffer, index=False)
+
+# Upload the Excel file to Google Cloud Storage
 blob = bucket.blob("PTP1B_proteoform_final_distribution_with_counts.xlsx")
-blob.upload_from_string(excel_buffer.getvalue())
+blob.upload_from_string(excel_buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 print("Final distribution saved to Google Cloud Storage bucket 'jamesmontecarlo'")
