@@ -160,7 +160,7 @@ csv_buffer = StringIO()
 route_map.to_csv(csv_buffer, index=False)
 blob = bucket.blob("proteoform_route_map_35_test.csv")
 blob.upload_from_string(csv_buffer.getvalue())
-print("Route map saved to Google Cloud Storage bucket 'jamesmontecarlo')
+print("Route map saved to Google Cloud Storage bucket 'jamesmontecarlo'")
 
 # Create a DataFrame from the final proteoform counts and upload to Google Cloud Storage as Excel
 final_counts_df = pd.DataFrame(list(final_proteoform_counts.items()), columns=['Proteoform_ID', 'Count'])
