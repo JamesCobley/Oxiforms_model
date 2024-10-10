@@ -21,9 +21,9 @@ number_of_molecules = 70000
 time_steps = 300
 
 # Provided oxidation and reduction probabilities
-P_oxidation_Cys215 = 0.00150
-P_oxidation_other = 0.000311
-P_reduction_Cys215 = 0.30
+P_oxidation_Cys215 = 0.1250
+P_oxidation_other = 0.0311
+P_reduction_Cys215 = 0.3000
 P_reduction_other = 0.1286
 
 # Initial proteoform state for all molecules
@@ -120,7 +120,7 @@ print(f"Overall redox state of the population: {overall_redox_state}")
 # Save the route map to a CSV file and upload to Google Cloud Storage
 csv_buffer = StringIO()
 route_map.to_csv(csv_buffer, index=False)
-blob = bucket.blob("proteoform_route_map_POX_100nM.csv")
+blob = bucket.blob("proteoform_route_map_POX_125.csv")
 blob.upload_from_string(csv_buffer.getvalue())
 print("Route map saved to Google Cloud Storage bucket 'jamesmontecarlo'")
 
@@ -133,6 +133,6 @@ excel_buffer = BytesIO()  # Use BytesIO instead of StringIO
 final_counts_df.to_excel(excel_buffer, index=False)
 
 # Upload the Excel file to Google Cloud Storage
-blob = bucket.blob("PTP1B_proteoform_final_distribution_with_counts_POX_100nM.xlsx")
+blob = bucket.blob("PTP1B_proteoform_final_distribution_with_counts_POX_125.xlsx")
 blob.upload_from_string(excel_buffer.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 print("Final distribution saved to Google Cloud Storage bucket 'jamesmontecarlo'")
